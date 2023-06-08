@@ -1,0 +1,4 @@
+# Ignoring dataset folders
+airbus-ship-detection/
+checkpoint/
+end_training_weights/
