@@ -1,7 +1,7 @@
 # U-Net Training and Usage
 
 This solution provides code for training and using a U-Net model for image segmentation tasks. The U-Net architecture is a popular choice for tasks such as medical image segmentation and semantic segmentation. In this solution image segmentation using to 
-identified ship in image from satelites. Repository has two file to train and using U-Net model, exploratory_data.ipynb with airbus-ship-detection dataset analysis and two folder end_training_weight_dice_loss checkpoint_dice_loss with trained weigth for input_size=(128,128,3) and n_filters=32. Model with pretrained weight has precision up to 75%. To test or train you can use airbus-ship-detection dataset from kaggel using link `https://www.kaggle.com/c/airbus-ship-detection/data`.
+identified ship in image from satelites. Repository has two file to train and using U-Net model, exploratory_data.ipynb with airbus-ship-detection dataset analysis and two folder `end_training_weight_dice_loss` `checkpoint_dice_loss` with trained weigth for input_size=(128,128,3) and n_filters=32. Model with pretrained weight has precision up to 75%. To test or train you can use `airbus-ship-detection` dataset from kaggel using link `https://www.kaggle.com/c/airbus-ship-detection/data`. To train using `airbus-ship-detection` dataset move `airbus-ship-detection.csv` training file from his folder to train folder.
 
 ## Requirements
 
