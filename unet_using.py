@@ -3,6 +3,8 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
 from matplotlib import pyplot as plt
+import os
+import random
 
 def conv_block(inputs=None, n_filters=64, batch_norm=False, dropout_prob=0):
     # Convolutional block with LeakyReLU activation
@@ -97,15 +99,25 @@ class UNet:
         return prediction
 
 if __name__ == '__main__':
+    path = 'airbus-ship-detection/test/'
     # Example usage
-    unit = UNet(input_size=(256, 256, 3), weight_file_path='training/cp.ckpt', n_filters=32, grayscale=False)
-    image = unit.read_image('airbus-ship-detection/train/00d0a646b.jpg')
-    result = unit.forecast(image)
+    unit = UNet(input_size=(128, 128, 3), weight_file_path='end_training_weights_dice_loss/end_weight', n_filters=32, grayscale=False)
 
-    result = np.reshape(result, (256, 256, 1))
-    image = np.reshape(image, (256, 256, 3))
+    images_in_test = os.listdir(path)
+    random.shuffle(images_in_test)
 
-    fig, axe = plt.subplots(1, 2)
-    axe[0].imshow(result, interpolation='nearest')
-    axe[1].imshow(image, interpolation='nearest')
-    plt.show()
+    # Get only 100 images to test
+    images_in_test = images_in_test[:100]
+
+    for index, image in enumerate(images_in_test):
+        print(f'Now image number - {index}')
+        image = unit.read_image(path + image)
+        result = unit.forecast(image)
+
+        result = np.reshape(result, (128, 128, 1))
+        image = np.reshape(image, (128, 128, 3))
+
+        fig, axe = plt.subplots(1, 2)
+        axe[0].imshow(result, interpolation='nearest')
+        axe[1].imshow(image, interpolation='nearest')
+        plt.show()

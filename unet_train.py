@@ -94,14 +94,6 @@ def create_ds(path_folder='airbus-ship-detection/train/', csv_file='train_ship_s
     print('Dataset created .....')
     return ds_train, ds_valid
 
-
-CHECKPOINT_PATH = "checkpoint/cp.ckpt"
-
-# Create a callback that saves the model's weights
-cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=CHECKPOINT_PATH,
-                                                 save_weights_only=True,
-                                                 verbose=1)
-
 # Function to define a convolutional block
 def conv_block(inputs=None, n_filters=64, batch_norm=False, dropout_prob=0):
     conv1 = layers.Conv2D(n_filters, 3, padding='same')(inputs)
@@ -180,17 +172,18 @@ def true_positive_rate(y_true, y_pred):
     return tf.keras.backend.sum(tf.keras.backend.flatten(y_true) * tf.keras.backend.flatten(tf.keras.backend.round(y_pred))) / tf.keras.backend.sum(y_true)
 
 TRAIN_DIR = 'airbus-ship-detection/train/'
+CHECKPOINT_PATH = "checkpoint_dice_loss/cp.ckpt"
 AUTOTUNE = tf.data.experimental.AUTOTUNE
-EPOCHS = 6
+EPOCHS = 10
 
 if __name__ == "__main__":
     # Create the training and validation datasets
-    ds_train, ds_valid = create_ds(path_folder=TRAIN_DIR, csv_file='train_ship_segmentations.csv', elements_number=1024, label_reshape=(256, 256),
-                                   grayscale=False, cache=True, shuffle=100, batch_size=16, prefetch=False)
+    ds_train, ds_valid = create_ds(path_folder=TRAIN_DIR, csv_file='train_ship_segmentations.csv', elements_number=0, label_reshape=(128, 128),
+                                   grayscale=False, cache=True, shuffle=10000, batch_size=24, prefetch=False)
 
     # Create the U-Net model
-    unet = unet_model(input_size=(256, 256, 3), n_filters=32, dropouts=[0.3]*9)
-    unet.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.01), loss='binary_crossentropy', metrics=[dice_score, 'accuracy', true_positive_rate])
+    unet = unet_model(input_size=(128, 128, 3), n_filters=32, dropouts=[0.3]*9)
+    unet.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001), loss=dice_loss, metrics=[dice_score, 'accuracy', true_positive_rate])
 
     # Define a callback to save the model's weights
     cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=CHECKPOINT_PATH,
@@ -201,7 +194,7 @@ if __name__ == "__main__":
     seqModel = unet.fit(ds_train, epochs=EPOCHS, validation_data=ds_valid, callbacks=[cp_callback])
     
     # Save the final weights
-    unet.save_weights('end_training_weights/end_weight')
+    unet.save_weights('end_training_weights_dice_loss/end_weight')
 
     # Retrieve the loss and metrics history
     train_loss = seqModel.history['loss']
@@ -212,8 +205,9 @@ if __name__ == "__main__":
 
     # Plot the loss history
     plt.figure()
-    plt.plot(xc, train_loss)
-    plt.plot(xc, train_dice)
-    plt.plot(xc, val_loss)
-    plt.plot(xc, val_acc)
+    plt.plot(xc, train_loss, 'b-', label='train_loss')
+    plt.plot(xc, train_dice, 'r-', label='train_dice')
+    plt.plot(xc, val_loss, 'c-', label='val_loss')
+    plt.plot(xc, val_acc, 'm-', label='val_acc')
+    plt.legend()
     plt.show()
