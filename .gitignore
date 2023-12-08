@@ -1,2 +1,6 @@
 # Ignoring dataset folders
 airbus-ship-detection/
+input/
+old_version/
+venv/
+__pycache__/
